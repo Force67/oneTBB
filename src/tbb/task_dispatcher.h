@@ -302,7 +302,7 @@ d1::task* task_dispatcher::local_wait_for_all(d1::task* t, Waiter& waiter ) {
 
     // Infinite exception loop
     for (;;) {
-        try {
+       {
             // Main execution loop
             do {
                 // We assume that bypass tasks are from the same task group.
@@ -365,14 +365,6 @@ d1::task* task_dispatcher::local_wait_for_all(d1::task* t, Waiter& waiter ) {
                 );
             } while (t != nullptr); // main dispatch loop
             break; // Exit exception loop;
-        } catch (...) {
-            if (global_control::active_value(global_control::terminate_on_exception) == 1) {
-                do_throw_noexcept([] { throw; });
-            }
-            if (ed.context->cancel_group_execution()) {
-                /* We are the first to signal cancellation, so store the exception that caused it. */
-                ed.context->my_exception.store(tbb_exception_ptr::allocate(), std::memory_order_release);
-            }
         }
     } // Infinite exception loop
     __TBB_ASSERT(t == nullptr, nullptr);
@@ -476,4 +468,3 @@ d1::task* task_dispatcher::local_wait_for_all(d1::task* t, Waiter& waiter) {
 } // namespace tbb
 
 #endif // _TBB_task_dispatcher_H
-
